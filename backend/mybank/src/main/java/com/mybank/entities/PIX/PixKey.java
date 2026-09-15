@@ -1,35 +1,33 @@
-package com.mybank.entities;
+package com.mybank.entities.PIX;
 
+import com.mybank.entities.Account.Account;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
-@Table(name = "account")
+@Table(name = "pix_key")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Account {
+public class PixKey {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(name = "account_number", nullable = false)
-    private String accountNumber;
+    @ManyToOne
+    @JoinColumn(name = "account_id", nullable = false)
+    private Account account;
 
-    @Column(name = "branch", nullable = false)
-    private String branch;
-
-    @Column(name = "balance", nullable = false)
-    private BigDecimal balance;
+    @Column(name = "key", nullable = false)
+    private String key;
 
     @Column(name = "type", nullable = false)
     private String type;
@@ -39,12 +37,4 @@ public class Account {
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
-
-    @Column(name = "updated_at", nullable = false)
-    private LocalDateTime updatedAt;
-
-    @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
-
 }

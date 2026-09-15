@@ -1,4 +1,4 @@
-package com.mybank.entities;
+package com.mybank.entities.Authentication;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

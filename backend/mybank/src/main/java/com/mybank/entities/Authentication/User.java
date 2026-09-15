@@ -1,5 +1,6 @@
-package com.mybank.entities;
+package com.mybank.entities.Authentication;
 
+import com.mybank.entities.Account.Account;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
