@@ -1,0 +1,4 @@
+databaseChangeLog:
+  - include:
+      file: migrations/202607201106-create-table-users.yaml
+      relativeToChangelogFile: true
