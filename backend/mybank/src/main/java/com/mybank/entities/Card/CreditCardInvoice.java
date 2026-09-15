@@ -37,7 +37,8 @@ public class CreditCardInvoice {
     private BigDecimal amount;
 
     @Column(name = "status", nullable = false)
-    private String status;
+    @Enumerated(EnumType.STRING)
+    private InvoiceStatus status;
 
     @Column(name = "paid_at")
     private LocalDateTime paidAt;

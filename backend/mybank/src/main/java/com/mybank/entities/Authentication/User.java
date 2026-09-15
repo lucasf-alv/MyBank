@@ -41,8 +41,9 @@ public class User {
     @Column( name  = "birth_date" , nullable = false)
     private LocalDateTime birth_date;
 
+    @Enumerated(EnumType.STRING)
     @Column( name = "status" , nullable = false)
-    private String status ;
+    private UserStatus status ;
 
     @Column( name ="created_at" , nullable = false)
     private LocalDateTime created_at;

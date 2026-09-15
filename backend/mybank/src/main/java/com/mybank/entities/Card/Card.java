@@ -37,10 +37,12 @@ public class Card {
     private LocalDate expirationDate;
 
     @Column(name = "status", nullable = false)
-    private String status;
+    @Enumerated(EnumType.STRING)
+    private CardStatus status;
 
     @Column(name = "type", nullable = false)
-    private String type;
+    @Enumerated(EnumType.STRING)
+    private CardType type;
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;

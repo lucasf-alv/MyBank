@@ -38,7 +38,8 @@ public class Transfer {
     private String description;
 
     @Column(name = "status", nullable = false)
-    private String status;
+    @Enumerated(EnumType.STRING)
+    private TranferStatus status;
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;

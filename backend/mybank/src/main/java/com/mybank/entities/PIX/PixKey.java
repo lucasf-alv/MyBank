@@ -27,13 +27,15 @@ public class PixKey {
     private Account account;
 
     @Column(name = "key", nullable = false)
-    private String key;
+    @Enumerated(EnumType.STRING)
+    private PixKeyType key;
 
     @Column(name = "type", nullable = false)
     private String type;
 
     @Column(name = "status", nullable = false)
-    private String status;
+    @Enumerated(EnumType.STRING)
+    private PixKeyType status;
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;

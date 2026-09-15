@@ -32,11 +32,13 @@ public class Account {
     @Column(name = "balance", nullable = false)
     private BigDecimal balance;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "type", nullable = false)
-    private String type;
+    private AccountType type;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
-    private String status;
+    private AccountStatus status;
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;

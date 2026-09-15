@@ -42,7 +42,8 @@ public class PixTransfer {
     private String description;
 
     @Column(name = "status", nullable = false)
-    private String status;
+    @Enumerated(EnumType.STRING)
+    private PixTransferStatus status;
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;

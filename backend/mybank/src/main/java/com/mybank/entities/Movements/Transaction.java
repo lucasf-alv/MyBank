@@ -28,7 +28,8 @@ public class Transaction {
     private Account account;
 
     @Column(name = "type", nullable = false)
-    private String type;
+    @Enumerated(EnumType.STRING)
+    private TransactionType type;
 
     @Column(name = "amount", nullable = false)
     private BigDecimal amount;
@@ -39,8 +40,9 @@ public class Transaction {
     @Column(name = "balance_after", nullable = false)
     private BigDecimal balanceAfter;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
-    private String status;
+    private TransactionStatus status;
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
