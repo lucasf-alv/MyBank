@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -22,9 +23,6 @@ public class PixKey {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @ManyToOne
-    @JoinColumn(name = "account_id", nullable = false)
-    private Account account;
 
     @Column(name = "key", nullable = false)
     @Enumerated(EnumType.STRING)
@@ -39,4 +37,12 @@ public class PixKey {
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
+
+    @ManyToOne
+    @JoinColumn(name = "account_id", nullable = false)
+    private Account account;
+
+    @OneToMany(mappedBy = "pixKey")
+    private List<PixTransfer> pixTransfers;
+
 }

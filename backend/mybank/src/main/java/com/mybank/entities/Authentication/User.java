@@ -1,18 +1,21 @@
 package com.mybank.entities.Authentication;
 
 import com.mybank.entities.Account.Account;
+import com.mybank.entities.AdditionalFeatures.AuditLog;
+import com.mybank.entities.AdditionalFeatures.Notification;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
 @Entity
-@Table(name = "user")
+@Table(name = "\"user\"")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -26,30 +29,30 @@ public class User {
     @Column(name = "name", nullable = false)
     private String name;
 
-    @Column( name = "cpf" , nullable = false)
-    private String cpf ;
+    @Column(name = "cpf", nullable = false)
+    private String cpf;
 
-    @Column ( name = "email" , nullable = false)
+    @Column(name = "email", nullable = false)
     private String email;
 
-    @Column ( name = "password" , nullable = false )
+    @Column(name = "password", nullable = false)
     private String password;
 
-    @Column( name = "phone" , nullable = false)
-    private String phone ;
+    @Column(name = "phone", nullable = false)
+    private String phone;
 
-    @Column( name  = "birth_date" , nullable = false)
-    private LocalDateTime birth_date;
+    @Column(name = "birth_date", nullable = false)
+    private LocalDate birthDate;
 
     @Enumerated(EnumType.STRING)
-    @Column( name = "status" , nullable = false)
-    private UserStatus status ;
+    @Column(name = "status", nullable = false)
+    private UserStatus status;
 
-    @Column( name ="created_at" , nullable = false)
-    private LocalDateTime created_at;
+    @Column(name = "created_at", nullable = false)
+    private LocalDateTime createdAt;
 
-    @Column( name = "update_at" , nullable = false)
-    private LocalDateTime update_at;
+    @Column(name = "updated_at", nullable = false)
+    private LocalDateTime updatedAt;
 
     @OneToMany(mappedBy = "user")
     private List<Account> accounts;
@@ -57,5 +60,9 @@ public class User {
     @OneToMany(mappedBy = "user")
     private List<RefreshToken> refreshTokens;
 
+    @OneToMany(mappedBy = "user")
+    private List<Notification> notifications;
 
+    @OneToMany(mappedBy = "user")
+    private List<AuditLog> auditLogs;
 }

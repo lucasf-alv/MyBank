@@ -23,13 +23,6 @@ public class Transfer {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @ManyToOne
-    @JoinColumn(name = "source_account_id", nullable = false)
-    private Account sourceAccount;
-
-    @ManyToOne
-    @JoinColumn(name = "destination_account_id", nullable = false)
-    private Account destinationAccount;
 
     @Column(name = "amount", nullable = false)
     private BigDecimal amount;
@@ -43,4 +36,12 @@ public class Transfer {
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
+
+    @ManyToOne
+    @JoinColumn(name = "source_account_id", nullable = false)
+    private Account sourceAccount;
+
+    @ManyToOne
+    @JoinColumn(name = "destination_account_id", nullable = false)
+    private Account destinationAccount;
 }

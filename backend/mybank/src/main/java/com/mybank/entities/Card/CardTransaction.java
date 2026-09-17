@@ -22,13 +22,6 @@ public class CardTransaction {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @ManyToOne
-    @JoinColumn(name = "card_id", nullable = false)
-    private Card card;
-
-    @ManyToOne
-    @JoinColumn(name = "invoice_id", nullable = false)
-    private CreditCardInvoice invoice;
 
     @Column(name = "amount", nullable = false)
     private BigDecimal amount;
@@ -41,4 +34,12 @@ public class CardTransaction {
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
+
+    @ManyToOne
+    @JoinColumn(name = "card_id", nullable = false)
+    private Card card;
+
+    @ManyToOne
+    @JoinColumn(name = "invoice_id", nullable = false)
+    private CreditCardInvoice invoice;
 }
