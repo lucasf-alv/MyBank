@@ -133,4 +133,123 @@ public class GlobalExceptionHandler {
                 .badRequest()
                 .body(apiError);
     }
+    @ExceptionHandler(CardNotFoundError.class)
+    public ResponseEntity<ApiError> handleCardNotFoundError(
+            CardNotFoundError ex,
+            HttpServletRequest request) {
+
+        ApiError apiError = new ApiError(
+                LocalDateTime.now(),
+                HttpStatus.NOT_FOUND.value(),
+                "Not Found",
+                ex.getMessage(),
+                request.getRequestURI()
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(apiError);
+    }
+    @ExceptionHandler(CardBlockedError.class)
+    public ResponseEntity<ApiError> handleCardBlockedError(
+            CardBlockedError ex,
+            HttpServletRequest request) {
+
+        ApiError apiError = new ApiError(
+                LocalDateTime.now(),
+                HttpStatus.FORBIDDEN.value(),
+                "Forbidden",
+                ex.getMessage(),
+                request.getRequestURI()
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
+                .body(apiError);
+    }
+    @ExceptionHandler(CardCancelledError.class)
+    public ResponseEntity<ApiError> handleCardCancelledError(
+            CardCancelledError ex,
+            HttpServletRequest request) {
+
+        ApiError apiError = new ApiError(
+                LocalDateTime.now(),
+                HttpStatus.BAD_REQUEST.value(),
+                "Bad Request",
+                ex.getMessage(),
+                request.getRequestURI()
+        );
+
+        return ResponseEntity
+                .badRequest()
+                .body(apiError);
+    }
+    @ExceptionHandler(CardExpiredError.class)
+    public ResponseEntity<ApiError> handleCardExpiredError(
+            CardExpiredError ex,
+            HttpServletRequest request) {
+
+        ApiError apiError = new ApiError(
+                LocalDateTime.now(),
+                HttpStatus.BAD_REQUEST.value(),
+                "Bad Request",
+                ex.getMessage(),
+                request.getRequestURI()
+        );
+
+        return ResponseEntity
+                .badRequest()
+                .body(apiError);
+    }
+    @ExceptionHandler(CardAlreadyBlockedError.class)
+    public ResponseEntity<ApiError> handleCardAlreadyBlockedError(
+            CardAlreadyBlockedError ex,
+            HttpServletRequest request) {
+
+        ApiError apiError = new ApiError(
+                LocalDateTime.now(),
+                HttpStatus.BAD_REQUEST.value(),
+                "Bad Request",
+                ex.getMessage(),
+                request.getRequestURI()
+        );
+
+        return ResponseEntity
+                .badRequest()
+                .body(apiError);
+    }
+    @ExceptionHandler(CardAlreadyCancelledError.class)
+    public ResponseEntity<ApiError> handleCardAlreadyCancelledError(
+            CardAlreadyCancelledError ex,
+            HttpServletRequest request) {
+
+        ApiError apiError = new ApiError(
+                LocalDateTime.now(),
+                HttpStatus.BAD_REQUEST.value(),
+                "Bad Request",
+                ex.getMessage(),
+                request.getRequestURI()
+        );
+
+        return ResponseEntity
+                .badRequest()
+                .body(apiError);
+    }
+    @ExceptionHandler(InvalidCardTypeError.class)
+    public ResponseEntity<ApiError> handleInvalidCardTypeError(
+            InvalidCardTypeError ex,
+            HttpServletRequest request) {
+
+        ApiError apiError = new ApiError(
+                LocalDateTime.now(),
+                HttpStatus.BAD_REQUEST.value(),
+                "Bad Request",
+                ex.getMessage(),
+                request.getRequestURI()
+        );
+
+        return ResponseEntity
+                .badRequest()
+                .body(apiError);
+    }
 }

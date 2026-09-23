@@ -22,7 +22,7 @@ public class TransactionService {
 
     private final TransactionRepository transactionRepository;
 
-    public Transaction create(
+    public void create(
             Account account,
             TransactionType type,
             BigDecimal amount,
@@ -42,7 +42,7 @@ public class TransactionService {
         transaction.setCreatedAt(LocalDateTime.now());
         transaction.setAccount(account);
 
-        return transactionRepository.save(transaction);
+         transactionRepository.save(transaction);
     }
 
     public Transaction findById(UUID id) {
@@ -71,12 +71,12 @@ public class TransactionService {
                 );
     }
 
-    public Transaction recordCredit(
+    public void recordCredit(
             Account account,
             BigDecimal amount,
             String description) {
 
-        return create(
+        create(
                 account,
                 TransactionType.CREDIT,
                 amount,
@@ -85,12 +85,12 @@ public class TransactionService {
         );
     }
 
-    public Transaction recordDebit(
+    public void recordDebit(
             Account account,
             BigDecimal amount,
             String description) {
 
-        return create(
+         create(
                 account,
                 TransactionType.DEBIT,
                 amount,
