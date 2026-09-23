@@ -1,6 +1,5 @@
 package com.mybank.entities.Card;
 
-import com.mybank.entities.Movements.Transaction;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -25,27 +24,26 @@ public class CreditCardInvoice {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-
     @Column(name = "due_date", nullable = false)
     private LocalDate dueDate;
 
     @Column(name = "closing_date", nullable = false)
     private LocalDate closingDate;
 
-    @Column(name = "amount", nullable = false)
-    private BigDecimal amount;
+    @Column(name = "total_amount", nullable = false)
+    private BigDecimal totalAmount;
 
-    @Column(name = "status", nullable = false)
     @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false)
     private InvoiceStatus status;
 
-    @Column(name = "paid_at")
-    private LocalDateTime paidAt;
+    @Column(name = "created_at", nullable = false)
+    private LocalDateTime createdAt;
 
     @ManyToOne
     @JoinColumn(name = "card_id", nullable = false)
     private Card card;
 
     @OneToMany(mappedBy = "invoice")
-    private List<Transaction> transactions;
+    private List<CardTransaction> cardTransactions;
 }
