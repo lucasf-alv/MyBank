@@ -1,6 +1,6 @@
 package com.mybank.entities.Movements;
 
-public enum TranferStatus {
+public enum TransferStatus {
     PENDING,
     COMPLETED,
     FAILED,

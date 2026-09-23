@@ -32,7 +32,7 @@ public class Transfer {
 
     @Column(name = "status", nullable = false)
     @Enumerated(EnumType.STRING)
-    private TranferStatus status;
+    private TransferStatus status;
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
