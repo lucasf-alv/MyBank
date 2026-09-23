@@ -22,7 +22,6 @@ public class CardTransaction {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-
     @Column(name = "amount", nullable = false)
     private BigDecimal amount;
 
@@ -40,6 +39,6 @@ public class CardTransaction {
     private Card card;
 
     @ManyToOne
-    @JoinColumn(name = "invoice_id", nullable = false)
+    @JoinColumn(name = "invoice_id")
     private CreditCardInvoice invoice;
 }
