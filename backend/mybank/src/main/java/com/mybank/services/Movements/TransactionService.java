@@ -26,7 +26,8 @@ public class TransactionService {
             Account account,
             TransactionType type,
             BigDecimal amount,
-            String description) {
+            String description,
+            TransactionStatus status) {
 
         validateAmount(amount);
         validateType(type);
@@ -37,7 +38,7 @@ public class TransactionService {
         transaction.setAmount(amount);
         transaction.setDescription(description);
         transaction.setBalanceAfter(account.getBalance());
-        transaction.setStatus(TransactionStatus.COMPLETED);
+        transaction.setStatus(status);
         transaction.setCreatedAt(LocalDateTime.now());
         transaction.setAccount(account);
 
@@ -79,7 +80,8 @@ public class TransactionService {
                 account,
                 TransactionType.CREDIT,
                 amount,
-                description
+                description,
+                TransactionStatus.COMPLETED
         );
     }
 
@@ -92,7 +94,8 @@ public class TransactionService {
                 account,
                 TransactionType.DEBIT,
                 amount,
-                description
+                description,
+                TransactionStatus.COMPLETED
         );
     }
 
