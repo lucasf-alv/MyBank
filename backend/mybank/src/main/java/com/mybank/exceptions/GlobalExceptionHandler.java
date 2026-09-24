@@ -329,5 +329,209 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity.badRequest().body(apiError);
     }
+    @ExceptionHandler(InvoiceNotReadyToCloseError.class)
+    public ResponseEntity<ApiError> handleInvoiceNotReadyToClose(
+            InvoiceNotReadyToCloseError ex,
+            HttpServletRequest request) {
+
+        ApiError apiError = new ApiError(
+                LocalDateTime.now(),
+                HttpStatus.BAD_REQUEST.value(),
+                "Bad Request",
+                ex.getMessage(),
+                request.getRequestURI()
+        );
+
+        return ResponseEntity
+                .badRequest()
+                .body(apiError);
+    }
+    @ExceptionHandler(InvoiceNotOverdueError.class)
+    public ResponseEntity<ApiError> handleInvoiceNotOverdue(
+            InvoiceNotOverdueError ex,
+            HttpServletRequest request) {
+
+        ApiError apiError = new ApiError(
+                LocalDateTime.now(),
+                HttpStatus.BAD_REQUEST.value(),
+                "Bad Request",
+                ex.getMessage(),
+                request.getRequestURI()
+        );
+
+        return ResponseEntity
+                .badRequest()
+                .body(apiError);
+    }
+    @ExceptionHandler(PixKeyNotFoundError.class)
+    public ResponseEntity<ApiError> handlePixKeyNotFound(
+            PixKeyNotFoundError ex,
+            HttpServletRequest request) {
+
+        ApiError apiError = new ApiError(
+                LocalDateTime.now(),
+                HttpStatus.NOT_FOUND.value(),
+                "Not Found",
+                ex.getMessage(),
+                request.getRequestURI()
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(apiError);
+    }
+    @ExceptionHandler(PixKeyAlreadyExistsError.class)
+    public ResponseEntity<ApiError> handlePixKeyAlreadyExists(
+            PixKeyAlreadyExistsError ex,
+            HttpServletRequest request) {
+
+        ApiError apiError = new ApiError(
+                LocalDateTime.now(),
+                HttpStatus.CONFLICT.value(),
+                "Conflict",
+                ex.getMessage(),
+                request.getRequestURI()
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(apiError);
+    }
+    @ExceptionHandler(PixKeyAlreadyActiveError.class)
+    public ResponseEntity<ApiError> handlePixKeyAlreadyActive(
+            PixKeyAlreadyActiveError ex,
+            HttpServletRequest request) {
+
+        ApiError apiError = new ApiError(
+                LocalDateTime.now(),
+                HttpStatus.BAD_REQUEST.value(),
+                "Bad Request",
+                ex.getMessage(),
+                request.getRequestURI()
+        );
+
+        return ResponseEntity
+                .badRequest()
+                .body(apiError);
+    }
+    @ExceptionHandler(PixKeyAlreadyInactiveError.class)
+    public ResponseEntity<ApiError> handlePixKeyAlreadyInactive(
+            PixKeyAlreadyInactiveError ex,
+            HttpServletRequest request) {
+
+        ApiError apiError = new ApiError(
+                LocalDateTime.now(),
+                HttpStatus.BAD_REQUEST.value(),
+                "Bad Request",
+                ex.getMessage(),
+                request.getRequestURI()
+        );
+
+        return ResponseEntity
+                .badRequest()
+                .body(apiError);
+    }
+    @ExceptionHandler(PixKeyInactiveError.class)
+    public ResponseEntity<ApiError> handlePixKeyInactive(
+            PixKeyInactiveError ex,
+            HttpServletRequest request) {
+
+        ApiError apiError = new ApiError(
+                LocalDateTime.now(),
+                HttpStatus.BAD_REQUEST.value(),
+                "Bad Request",
+                ex.getMessage(),
+                request.getRequestURI()
+        );
+
+        return ResponseEntity
+                .badRequest()
+                .body(apiError);
+    }
+    @ExceptionHandler(InvalidPixKeyError.class)
+    public ResponseEntity<ApiError> handleInvalidPixKey(
+            InvalidPixKeyError ex,
+            HttpServletRequest request) {
+
+        ApiError apiError = new ApiError(
+                LocalDateTime.now(),
+                HttpStatus.BAD_REQUEST.value(),
+                "Bad Request",
+                ex.getMessage(),
+                request.getRequestURI()
+        );
+
+        return ResponseEntity
+                .badRequest()
+                .body(apiError);
+    }
+    @ExceptionHandler(InvalidPixKeyTypeError.class)
+    public ResponseEntity<ApiError> handleInvalidPixKeyType(
+            InvalidPixKeyTypeError ex,
+            HttpServletRequest request) {
+
+        ApiError apiError = new ApiError(
+                LocalDateTime.now(),
+                HttpStatus.BAD_REQUEST.value(),
+                "Bad Request",
+                ex.getMessage(),
+                request.getRequestURI()
+        );
+
+        return ResponseEntity
+                .badRequest()
+                .body(apiError);
+    }
+    @ExceptionHandler(PixTransferNotFoundError.class)
+    public ResponseEntity<ApiError> handlePixTransferNotFound(
+            PixTransferNotFoundError ex,
+            HttpServletRequest request) {
+
+        ApiError apiError = new ApiError(
+                LocalDateTime.now(),
+                HttpStatus.NOT_FOUND.value(),
+                "Not Found",
+                ex.getMessage(),
+                request.getRequestURI()
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(apiError);
+    }
+    @ExceptionHandler(InvalidPixTransferAmountError.class)
+    public ResponseEntity<ApiError> handleInvalidPixTransferAmount(
+            InvalidPixTransferAmountError ex,
+            HttpServletRequest request) {
+
+        ApiError apiError = new ApiError(
+                LocalDateTime.now(),
+                HttpStatus.BAD_REQUEST.value(),
+                "Bad Request",
+                ex.getMessage(),
+                request.getRequestURI()
+        );
+
+        return ResponseEntity
+                .badRequest()
+                .body(apiError);
+    }
+    @ExceptionHandler(PixTransferSameAccountError.class)
+    public ResponseEntity<ApiError> handlePixTransferSameAccount(
+            PixTransferSameAccountError ex,
+            HttpServletRequest request) {
+
+        ApiError apiError = new ApiError(
+                LocalDateTime.now(),
+                HttpStatus.BAD_REQUEST.value(),
+                "Bad Request",
+                ex.getMessage(),
+                request.getRequestURI()
+        );
+
+        return ResponseEntity
+                .badRequest()
+                .body(apiError);
+    }
 
 }

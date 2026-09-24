@@ -170,6 +170,15 @@ public class CreditCardInvoiceService {
         }
 
         /*
+         * Verifica se a data de fechamento já foi atingida.
+         */
+        if (LocalDate.now().isBefore(invoice.getClosingDate())) {
+            throw new InvoiceNotReadyToCloseError(
+                    "Invoice cannot be closed before the closing date"
+            );
+        }
+
+        /*
          * Altera o status da fatura atual para CLOSED.
          */
         invoice.setStatus(InvoiceStatus.CLOSED);
@@ -182,6 +191,7 @@ public class CreditCardInvoiceService {
          */
         return createNextInvoice(invoice);
     }
+
 
     /*
      * Marca uma fatura como vencida.
@@ -201,6 +211,19 @@ public class CreditCardInvoiceService {
             );
         }
 
+        /*
+         * A fatura só pode ser marcada como vencida
+         * depois que a data de vencimento passar.
+         */
+        if (!LocalDate.now().isAfter(invoice.getDueDate())) {
+            throw new InvoiceNotOverdueError(
+                    "Invoice is not overdue yet"
+            );
+        }
+
+        /*
+         * Altera o status da fatura para OVERDUE.
+         */
         invoice.setStatus(InvoiceStatus.OVERDUE);
 
         invoiceRepository.save(invoice);

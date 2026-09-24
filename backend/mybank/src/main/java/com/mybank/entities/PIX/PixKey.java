@@ -23,17 +23,16 @@ public class PixKey {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
+    @Column(name = "key", nullable = false, unique = true)
+    private String key;
 
-    @Column(name = "key", nullable = false)
     @Enumerated(EnumType.STRING)
-    private PixKeyType key;
-
     @Column(name = "type", nullable = false)
-    private String type;
+    private PixKeyType type;
 
-    @Column(name = "status", nullable = false)
     @Enumerated(EnumType.STRING)
-    private PixKeyType status;
+    @Column(name = "status", nullable = false)
+    private PixKeyStatus status;
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
@@ -44,5 +43,4 @@ public class PixKey {
 
     @OneToMany(mappedBy = "pixKey")
     private List<PixTransfer> pixTransfers;
-
 }

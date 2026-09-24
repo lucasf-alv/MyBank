@@ -1,5 +1,6 @@
 package com.mybank.repositories.Card;
 
+import com.mybank.entities.Card.CardTransaction;
 import com.mybank.entities.Card.CreditCardInvoice;
 import com.mybank.entities.Card.InvoiceStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -16,5 +17,7 @@ public interface CreditCardInvoiceRepository
     Optional<CreditCardInvoice> findByCardIdAndStatus(
             UUID cardId,
             InvoiceStatus status
+
     );
+
 }
