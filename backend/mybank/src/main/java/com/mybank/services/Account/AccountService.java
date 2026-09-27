@@ -9,6 +9,8 @@ import com.mybank.exceptions.AccountNotFoundError;
 import com.mybank.exceptions.InsufficientBalanceError;
 import com.mybank.exceptions.InvalidAmountError;
 import com.mybank.repositories.Account.AccountRepository;
+import com.mybank.services.AdditionalFeatures.AuditLogService;
+import com.mybank.services.AdditionalFeatures.NotificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -22,6 +24,8 @@ import java.util.UUID;
 public class AccountService {
 
     private final AccountRepository accountRepository;
+    private final NotificationService notificationService;
+    private final AuditLogService auditLogService;
 
     /*
      * Cria uma nova conta bancária para um usuário.
@@ -32,6 +36,10 @@ public class AccountService {
      * - saldo inicial igual a zero;
      * - tipo de conta informado;
      * - status ACTIVE.
+     *
+     * Depois da criação:
+     * - envia uma notificação ao usuário;
+     * - registra a criação no audit log.
      */
     public Account createAccount(
             User user,
@@ -50,7 +58,7 @@ public class AccountService {
         // Toda conta nova começa com saldo zero.
         account.setBalance(BigDecimal.ZERO);
 
-        // Define o tipo da conta.
+        // Define o tipo de conta.
         account.setType(type);
 
         // Toda conta nova começa ativa.
@@ -65,7 +73,28 @@ public class AccountService {
         // Associa a conta ao usuário.
         account.setUser(user);
 
-        return accountRepository.save(account);
+        Account savedAccount =
+                accountRepository.save(account);
+
+        /*
+         * Notifica o usuário sobre a criação da conta.
+         */
+        notificationService.create(
+                user,
+                "Account created successfully"
+        );
+
+        /*
+         * Registra a criação da conta no histórico
+         * de auditoria.
+         */
+        auditLogService.create(
+                user,
+                "ACCOUNT_CREATED",
+                "Account created: " + savedAccount.getId()
+        );
+
+        return savedAccount;
     }
 
     /*
@@ -98,6 +127,10 @@ public class AccountService {
      * Antes de realizar a operação, verifica:
      * - se o valor é válido;
      * - se a conta não está bloqueada.
+     *
+     * Esse método não cria notificações ou audit logs,
+     * pois é utilizado internamente por operações maiores,
+     * como transferências, PIX e outros fluxos financeiros.
      */
     public void credit(
             Account account,
@@ -127,6 +160,11 @@ public class AccountService {
      * - se o valor é válido;
      * - se a conta não está bloqueada;
      * - se existe saldo suficiente.
+     *
+     * Esse método não cria notificações ou audit logs,
+     * pois é utilizado internamente por operações maiores,
+     * como transferências, PIX, compras no débito
+     * e pagamentos de fatura.
      */
     public void debit(
             Account account,
@@ -178,13 +216,36 @@ public class AccountService {
 
     /*
      * Ativa uma conta.
+     *
+     * Depois da ativação:
+     * - envia uma notificação ao usuário;
+     * - registra a ação no audit log.
      */
     public void activate(Account account) {
 
         account.setStatus(AccountStatus.ACTIVE);
         account.setUpdatedAt(LocalDateTime.now());
 
-        accountRepository.save(account);
+        Account savedAccount =
+                accountRepository.save(account);
+
+        /*
+         * Notifica o usuário sobre a ativação da conta.
+         */
+        notificationService.create(
+                savedAccount.getUser(),
+                "Account activated successfully"
+        );
+
+        /*
+         * Registra a ativação da conta no histórico
+         * de auditoria.
+         */
+        auditLogService.create(
+                savedAccount.getUser(),
+                "ACCOUNT_ACTIVATED",
+                "Account activated: " + savedAccount.getId()
+        );
     }
 
     /*
@@ -192,13 +253,36 @@ public class AccountService {
      *
      * Uma conta bloqueada não poderá realizar operações
      * que alterem seu saldo.
+     *
+     * Depois do bloqueio:
+     * - envia uma notificação ao usuário;
+     * - registra a ação no audit log.
      */
     public void block(Account account) {
 
         account.setStatus(AccountStatus.BLOCKED);
         account.setUpdatedAt(LocalDateTime.now());
 
-        accountRepository.save(account);
+        Account savedAccount =
+                accountRepository.save(account);
+
+        /*
+         * Notifica o usuário sobre o bloqueio da conta.
+         */
+        notificationService.create(
+                savedAccount.getUser(),
+                "Account blocked successfully"
+        );
+
+        /*
+         * Registra o bloqueio da conta no histórico
+         * de auditoria.
+         */
+        auditLogService.create(
+                savedAccount.getUser(),
+                "ACCOUNT_BLOCKED",
+                "Account blocked: " + savedAccount.getId()
+        );
     }
 
     /*

@@ -8,6 +8,8 @@ import com.mybank.entities.Card.InvoiceStatus;
 import com.mybank.exceptions.*;
 import com.mybank.repositories.Card.CreditCardInvoiceRepository;
 import com.mybank.services.Account.AccountService;
+import com.mybank.services.AdditionalFeatures.AuditLogService;
+import com.mybank.services.AdditionalFeatures.NotificationService;
 import com.mybank.services.Movements.TransactionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -26,6 +28,8 @@ public class CreditCardInvoiceService {
     private final CreditCardInvoiceRepository invoiceRepository;
     private final AccountService accountService;
     private final TransactionService transactionService;
+    private final NotificationService notificationService;
+    private final AuditLogService auditLogService;
 
     /*
      * Cria uma nova fatura para um cartão.
@@ -113,13 +117,6 @@ public class CreditCardInvoiceService {
      *
      * Primeiro verifica se a fatura ainda está aberta.
      * Depois soma o valor da compra ao total da fatura.
-     *
-     * Exemplo:
-     *
-     * Fatura = R$ 500
-     * Compra = R$ 100
-     *
-     * Novo total = R$ 600
      */
     public void addTransaction(
             CreditCardInvoice invoice,
@@ -144,8 +141,9 @@ public class CreditCardInvoiceService {
      * Depois de fechar a fatura atual, cria automaticamente
      * a próxima fatura do mesmo cartão.
      *
-     * O @Transactional garante que o fechamento da fatura
-     * e a criação da próxima aconteçam na mesma transação.
+     * O @Transactional garante que o fechamento da fatura,
+     * a criação da próxima fatura, a notificação e o audit log
+     * façam parte da mesma transação.
      */
     @Transactional
     public CreditCardInvoice close(
@@ -186,12 +184,42 @@ public class CreditCardInvoiceService {
         invoiceRepository.save(invoice);
 
         /*
-         * Depois de fechar a fatura atual,
-         * cria a próxima fatura do cartão.
+         * Cria a próxima fatura do cartão.
          */
-        return createNextInvoice(invoice);
-    }
+        CreditCardInvoice nextInvoice =
+                createNextInvoice(invoice);
 
+        /*
+         * Obtém o usuário dono da conta associada ao cartão.
+         */
+        Account account =
+                invoice.getCard().getAccount();
+
+        /*
+         * Notifica o usuário que a fatura foi fechada.
+         */
+        notificationService.create(
+                account.getUser(),
+                "Credit card invoice closed. "
+                        + "Total amount: "
+                        + invoice.getTotalAmount()
+        );
+
+        /*
+         * Registra o fechamento da fatura no histórico
+         * de auditoria.
+         */
+        auditLogService.create(
+                account.getUser(),
+                "CREDIT_CARD_INVOICE_CLOSED",
+                "Credit card invoice "
+                        + invoice.getId()
+                        + " closed with total amount "
+                        + invoice.getTotalAmount()
+        );
+
+        return nextInvoice;
+    }
 
     /*
      * Marca uma fatura como vencida.
@@ -199,6 +227,7 @@ public class CreditCardInvoiceService {
      * É utilizada quando a data de vencimento passou
      * e a fatura ainda não foi paga.
      */
+    @Transactional
     public void markAsOverdue(
             CreditCardInvoice invoice) {
 
@@ -227,6 +256,35 @@ public class CreditCardInvoiceService {
         invoice.setStatus(InvoiceStatus.OVERDUE);
 
         invoiceRepository.save(invoice);
+
+        /*
+         * Obtém o usuário dono da conta associada ao cartão.
+         */
+        Account account =
+                invoice.getCard().getAccount();
+
+        /*
+         * Notifica o usuário que a fatura está vencida.
+         */
+        notificationService.create(
+                account.getUser(),
+                "Credit card invoice is overdue. "
+                        + "Amount due: "
+                        + invoice.getTotalAmount()
+        );
+
+        /*
+         * Registra o vencimento da fatura no histórico
+         * de auditoria.
+         */
+        auditLogService.create(
+                account.getUser(),
+                "CREDIT_CARD_INVOICE_OVERDUE",
+                "Credit card invoice "
+                        + invoice.getId()
+                        + " became overdue with total amount "
+                        + invoice.getTotalAmount()
+        );
     }
 
     /*
@@ -239,7 +297,9 @@ public class CreditCardInvoiceService {
      * 3. Obtém a conta vinculada ao cartão;
      * 4. Debita o valor da conta;
      * 5. Registra uma Transaction;
-     * 6. Marca a fatura como PAID.
+     * 6. Marca a fatura como PAID;
+     * 7. Cria uma notificação;
+     * 8. Registra a ação no audit log.
      *
      * O @Transactional garante que todas essas operações
      * sejam tratadas como uma única transação.
@@ -286,9 +346,6 @@ public class CreditCardInvoiceService {
 
         /*
          * Debita o valor da fatura da conta.
-         *
-         * O AccountService é responsável pela alteração
-         * do saldo da conta.
          */
         accountService.debit(
                 account,
@@ -312,6 +369,29 @@ public class CreditCardInvoiceService {
         invoice.setStatus(InvoiceStatus.PAID);
 
         invoiceRepository.save(invoice);
+
+        /*
+         * Notifica o usuário sobre o pagamento da fatura.
+         */
+        notificationService.create(
+                account.getUser(),
+                "Credit card invoice paid successfully. "
+                        + "Amount: "
+                        + amount
+        );
+
+        /*
+         * Registra o pagamento da fatura no histórico
+         * de auditoria.
+         */
+        auditLogService.create(
+                account.getUser(),
+                "CREDIT_CARD_INVOICE_PAID",
+                "Credit card invoice "
+                        + invoice.getId()
+                        + " paid with amount "
+                        + amount
+        );
     }
 
     /*
@@ -368,16 +448,6 @@ public class CreditCardInvoiceService {
      *
      * As datas são calculadas a partir da fatura atual,
      * mantendo o ciclo mensal.
-     *
-     * Exemplo:
-     *
-     * Fatura atual:
-     * fechamento = 25/09
-     * vencimento = 05/10
-     *
-     * Próxima:
-     * fechamento = 25/10
-     * vencimento = 05/11
      */
     private CreditCardInvoice createNextInvoice(
             CreditCardInvoice currentInvoice) {

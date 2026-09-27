@@ -9,6 +9,8 @@ import com.mybank.exceptions.CardTransactionNotFoundError;
 import com.mybank.exceptions.InvalidCardTransactionAmountError;
 import com.mybank.repositories.Card.CardTransactionRepository;
 import com.mybank.services.Account.AccountService;
+import com.mybank.services.AdditionalFeatures.AuditLogService;
+import com.mybank.services.AdditionalFeatures.NotificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,6 +28,8 @@ public class CardTransactionService {
     private final AccountService accountService;
     private final CardService cardService;
     private final CreditCardInvoiceService invoiceService;
+    private final NotificationService notificationService;
+    private final AuditLogService auditLogService;
 
     /*
      * Cria uma nova transação realizada através de um cartão.
@@ -36,14 +40,18 @@ public class CardTransactionService {
      * - valida o cartão;
      * - verifica o valor;
      * - debita o valor da conta;
-     * - registra a transação.
+     * - registra a transação;
+     * - cria a notificação;
+     * - registra a ação no audit log.
      *
      * CRÉDITO:
      * - valida o cartão;
      * - verifica o valor;
      * - encontra a fatura aberta;
      * - adiciona a compra à fatura;
-     * - registra a transação vinculada à fatura.
+     * - registra a transação vinculada à fatura;
+     * - cria a notificação;
+     * - registra a ação no audit log.
      *
      * O @Transactional garante que todas as operações
      * sejam revertidas caso alguma etapa apresente erro.
@@ -111,7 +119,35 @@ public class CardTransactionService {
          * Depois de processar a compra,
          * salva a CardTransaction no banco.
          */
-        return cardTransactionRepository.save(transaction);
+        CardTransaction savedTransaction =
+                cardTransactionRepository.save(transaction);
+
+        /*
+         * Obtém a conta associada ao cartão.
+         */
+        Account account = card.getAccount();
+
+        /*
+         * Cria uma notificação para o usuário
+         * informando sobre a compra realizada.
+         */
+        notificationService.create(
+                account.getUser(),
+                "Card purchase of " + amount
+                        + " at " + merchant
+        );
+
+        /*
+         * Registra a compra no histórico de auditoria.
+         */
+        auditLogService.create(
+                account.getUser(),
+                "CARD_TRANSACTION_CREATED",
+                "Card transaction of " + amount
+                        + " at " + merchant
+        );
+
+        return savedTransaction;
     }
 
     /*

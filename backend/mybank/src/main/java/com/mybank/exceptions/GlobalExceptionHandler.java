@@ -533,5 +533,131 @@ public class GlobalExceptionHandler {
                 .badRequest()
                 .body(apiError);
     }
+    @ExceptionHandler(AuditLogNotFoundError.class)
+    public ResponseEntity<ApiError> handleAuditLogNotFound(
+            AuditLogNotFoundError ex,
+            HttpServletRequest request) {
+
+        ApiError apiError = new ApiError(
+                LocalDateTime.now(),
+                HttpStatus.NOT_FOUND.value(),
+                "Not Found",
+                ex.getMessage(),
+                request.getRequestURI()
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(apiError);
+    }
+
+    @ExceptionHandler(InvalidAuditLogActionError.class)
+    public ResponseEntity<ApiError> handleInvalidAuditLogAction(
+            InvalidAuditLogActionError ex,
+            HttpServletRequest request) {
+
+        ApiError apiError = new ApiError(
+                LocalDateTime.now(),
+                HttpStatus.BAD_REQUEST.value(),
+                "Bad Request",
+                ex.getMessage(),
+                request.getRequestURI()
+        );
+
+        return ResponseEntity
+                .badRequest()
+                .body(apiError);
+    }
+
+    @ExceptionHandler(InvalidAuditLogDescriptionError.class)
+    public ResponseEntity<ApiError> handleInvalidAuditLogDescription(
+            InvalidAuditLogDescriptionError ex,
+            HttpServletRequest request) {
+
+        ApiError apiError = new ApiError(
+                LocalDateTime.now(),
+                HttpStatus.BAD_REQUEST.value(),
+                "Bad Request",
+                ex.getMessage(),
+                request.getRequestURI()
+        );
+
+        return ResponseEntity
+                .badRequest()
+                .body(apiError);
+    }
+
+    @ExceptionHandler(InvalidAuditLogPeriodError.class)
+    public ResponseEntity<ApiError> handleInvalidAuditLogPeriod(
+            InvalidAuditLogPeriodError ex,
+            HttpServletRequest request) {
+
+        ApiError apiError = new ApiError(
+                LocalDateTime.now(),
+                HttpStatus.BAD_REQUEST.value(),
+                "Bad Request",
+                ex.getMessage(),
+                request.getRequestURI()
+        );
+
+        return ResponseEntity
+                .badRequest()
+                .body(apiError);
+    }
+
+    @ExceptionHandler(NotificationNotFoundError.class)
+    public ResponseEntity<ApiError> handleNotificationNotFound(
+            NotificationNotFoundError ex,
+            HttpServletRequest request) {
+
+        ApiError apiError = new ApiError(
+                LocalDateTime.now(),
+                HttpStatus.NOT_FOUND.value(),
+                "Not Found",
+                ex.getMessage(),
+                request.getRequestURI()
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(apiError);
+    }
+
+    @ExceptionHandler(InvalidNotificationMessageError.class)
+    public ResponseEntity<ApiError> handleInvalidNotificationMessage(
+            InvalidNotificationMessageError ex,
+            HttpServletRequest request) {
+
+        ApiError apiError = new ApiError(
+                LocalDateTime.now(),
+                HttpStatus.BAD_REQUEST.value(),
+                "Bad Request",
+                ex.getMessage(),
+                request.getRequestURI()
+        );
+
+        return ResponseEntity
+                .badRequest()
+                .body(apiError);
+    }
+
+    @ExceptionHandler(NotificationAlreadyReadError.class)
+    public ResponseEntity<ApiError> handleNotificationAlreadyRead(
+            NotificationAlreadyReadError ex,
+            HttpServletRequest request) {
+
+        ApiError apiError = new ApiError(
+                LocalDateTime.now(),
+                HttpStatus.BAD_REQUEST.value(),
+                "Bad Request",
+                ex.getMessage(),
+                request.getRequestURI()
+        );
+
+        return ResponseEntity
+                .badRequest()
+                .body(apiError);
+    }
+
 
 }

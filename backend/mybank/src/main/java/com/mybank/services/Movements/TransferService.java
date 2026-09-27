@@ -8,6 +8,8 @@ import com.mybank.exceptions.TransferNotFoundError;
 import com.mybank.exceptions.TransferSameAccountError;
 import com.mybank.repositories.Movements.TransferRepository;
 import com.mybank.services.Account.AccountService;
+import com.mybank.services.AdditionalFeatures.AuditLogService;
+import com.mybank.services.AdditionalFeatures.NotificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,6 +26,8 @@ public class TransferService {
     private final TransferRepository transferRepository;
     private final AccountService accountService;
     private final TransactionService transactionService;
+    private final NotificationService notificationService;
+    private final AuditLogService auditLogService;
 
     /*
      * Cria uma transferência entre duas contas.
@@ -35,7 +39,9 @@ public class TransferService {
      * - crédito na conta de destino;
      * - registro da saída na conta de origem;
      * - registro da entrada na conta de destino;
-     * - registro da transferência.
+     * - registro da transferência;
+     * - criação das notificações;
+     * - registro das ações no audit log.
      *
      * O @Transactional garante que todas as operações
      * sejam revertidas caso alguma etapa apresente erro.
@@ -102,7 +108,51 @@ public class TransferService {
         // Define a conta que recebeu o dinheiro.
         transfer.setDestinationAccount(destinationAccount);
 
-        return transferRepository.save(transfer);
+        Transfer savedTransfer =
+                transferRepository.save(transfer);
+
+        /*
+         * Notifica o usuário que realizou a transferência.
+         */
+        notificationService.create(
+                sourceAccount.getUser(),
+                "Transfer of " + amount
+                        + " completed successfully"
+        );
+
+        /*
+         * Notifica o usuário que recebeu a transferência.
+         */
+        notificationService.create(
+                destinationAccount.getUser(),
+                "You received a transfer of " + amount
+        );
+
+        /*
+         * Registra a transferência realizada pelo usuário
+         * de origem no histórico de auditoria.
+         */
+        auditLogService.create(
+                sourceAccount.getUser(),
+                "TRANSFER_CREATED",
+                "Transfer of " + amount
+                        + " sent to account "
+                        + destinationAccount.getId()
+        );
+
+        /*
+         * Registra o recebimento da transferência no histórico
+         * de auditoria do usuário de destino.
+         */
+        auditLogService.create(
+                destinationAccount.getUser(),
+                "TRANSFER_RECEIVED",
+                "Transfer of " + amount
+                        + " received from account "
+                        + sourceAccount.getId()
+        );
+
+        return savedTransfer;
     }
 
     /*

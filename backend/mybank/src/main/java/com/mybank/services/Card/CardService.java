@@ -12,6 +12,8 @@ import com.mybank.exceptions.CardExpiredError;
 import com.mybank.exceptions.CardNotFoundError;
 import com.mybank.exceptions.InvalidCardTypeError;
 import com.mybank.repositories.Card.CardRepository;
+import com.mybank.services.AdditionalFeatures.AuditLogService;
+import com.mybank.services.AdditionalFeatures.NotificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -25,6 +27,8 @@ import java.util.UUID;
 public class CardService {
 
     private final CardRepository cardRepository;
+    private final NotificationService notificationService;
+    private final AuditLogService auditLogService;
 
     /*
      * Cria um novo cartão associado a uma conta.
@@ -65,7 +69,27 @@ public class CardService {
         // Associa o cartão à conta.
         card.setAccount(account);
 
-        return cardRepository.save(card);
+        Card savedCard = cardRepository.save(card);
+
+        /*
+         * Notifica o usuário sobre a criação do cartão.
+         */
+        notificationService.create(
+                account.getUser(),
+                "Card created successfully"
+        );
+
+        /*
+         * Registra a criação do cartão no histórico
+         * de auditoria do usuário.
+         */
+        auditLogService.create(
+                account.getUser(),
+                "CARD_CREATED",
+                "Card created: " + savedCard.getId()
+        );
+
+        return savedCard;
     }
 
     /*
@@ -118,7 +142,25 @@ public class CardService {
 
         card.setStatus(CardStatus.ACTIVE);
 
-        cardRepository.save(card);
+        Card savedCard = cardRepository.save(card);
+
+        /*
+         * Notifica o usuário sobre a ativação do cartão.
+         */
+        notificationService.create(
+                savedCard.getAccount().getUser(),
+                "Card activated successfully"
+        );
+
+        /*
+         * Registra a ativação do cartão no histórico
+         * de auditoria do usuário.
+         */
+        auditLogService.create(
+                savedCard.getAccount().getUser(),
+                "CARD_ACTIVATED",
+                "Card activated: " + savedCard.getId()
+        );
     }
 
     /*
@@ -143,7 +185,25 @@ public class CardService {
 
         card.setStatus(CardStatus.BLOCKED);
 
-        cardRepository.save(card);
+        Card savedCard = cardRepository.save(card);
+
+        /*
+         * Notifica o usuário sobre o bloqueio do cartão.
+         */
+        notificationService.create(
+                savedCard.getAccount().getUser(),
+                "Card blocked successfully"
+        );
+
+        /*
+         * Registra o bloqueio do cartão no histórico
+         * de auditoria do usuário.
+         */
+        auditLogService.create(
+                savedCard.getAccount().getUser(),
+                "CARD_BLOCKED",
+                "Card blocked: " + savedCard.getId()
+        );
     }
 
     /*
@@ -161,7 +221,25 @@ public class CardService {
 
         card.setStatus(CardStatus.CANCELLED);
 
-        cardRepository.save(card);
+        Card savedCard = cardRepository.save(card);
+
+        /*
+         * Notifica o usuário sobre o cancelamento do cartão.
+         */
+        notificationService.create(
+                savedCard.getAccount().getUser(),
+                "Card cancelled successfully"
+        );
+
+        /*
+         * Registra o cancelamento do cartão no histórico
+         * de auditoria do usuário.
+         */
+        auditLogService.create(
+                savedCard.getAccount().getUser(),
+                "CARD_CANCELLED",
+                "Card cancelled: " + savedCard.getId()
+        );
     }
 
     /*

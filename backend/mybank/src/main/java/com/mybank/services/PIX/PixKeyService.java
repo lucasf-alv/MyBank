@@ -6,6 +6,8 @@ import com.mybank.entities.PIX.PixKeyStatus;
 import com.mybank.entities.PIX.PixKeyType;
 import com.mybank.exceptions.*;
 import com.mybank.repositories.PIX.PixKeyRepository;
+import com.mybank.services.AdditionalFeatures.AuditLogService;
+import com.mybank.services.AdditionalFeatures.NotificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -18,6 +20,8 @@ import java.util.UUID;
 public class PixKeyService {
 
     private final PixKeyRepository pixKeyRepository;
+    private final NotificationService notificationService;
+    private final AuditLogService auditLogService;
 
     /*
      * Cria uma nova chave PIX para uma conta.
@@ -51,7 +55,27 @@ public class PixKeyService {
         pixKey.setCreatedAt(LocalDateTime.now());
         pixKey.setAccount(account);
 
-        return pixKeyRepository.save(pixKey);
+        PixKey savedPixKey = pixKeyRepository.save(pixKey);
+
+        /*
+         * Notifica o usuário sobre a criação da chave PIX.
+         */
+        notificationService.create(
+                account.getUser(),
+                "PIX key created successfully"
+        );
+
+        /*
+         * Registra a criação da chave PIX no histórico
+         * de auditoria do usuário.
+         */
+        auditLogService.create(
+                account.getUser(),
+                "PIX_KEY_CREATED",
+                "PIX key created: " + savedPixKey.getId()
+        );
+
+        return savedPixKey;
     }
 
     /*
@@ -114,7 +138,26 @@ public class PixKeyService {
 
         pixKey.setStatus(PixKeyStatus.ACTIVE);
 
-        pixKeyRepository.save(pixKey);
+        PixKey savedPixKey =
+                pixKeyRepository.save(pixKey);
+
+        /*
+         * Notifica o usuário sobre a ativação da chave.
+         */
+        notificationService.create(
+                savedPixKey.getAccount().getUser(),
+                "PIX key activated successfully"
+        );
+
+        /*
+         * Registra a ativação da chave no histórico
+         * de auditoria do usuário.
+         */
+        auditLogService.create(
+                savedPixKey.getAccount().getUser(),
+                "PIX_KEY_ACTIVATED",
+                "PIX key activated: " + savedPixKey.getId()
+        );
     }
 
     /*
@@ -132,7 +175,26 @@ public class PixKeyService {
 
         pixKey.setStatus(PixKeyStatus.INACTIVE);
 
-        pixKeyRepository.save(pixKey);
+        PixKey savedPixKey =
+                pixKeyRepository.save(pixKey);
+
+        /*
+         * Notifica o usuário sobre a desativação da chave.
+         */
+        notificationService.create(
+                savedPixKey.getAccount().getUser(),
+                "PIX key deactivated successfully"
+        );
+
+        /*
+         * Registra a desativação da chave no histórico
+         * de auditoria do usuário.
+         */
+        auditLogService.create(
+                savedPixKey.getAccount().getUser(),
+                "PIX_KEY_DEACTIVATED",
+                "PIX key deactivated: " + savedPixKey.getId()
+        );
     }
 
     /*

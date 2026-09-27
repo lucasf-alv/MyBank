@@ -7,6 +7,8 @@ import com.mybank.entities.PIX.PixTransferStatus;
 import com.mybank.exceptions.*;
 import com.mybank.repositories.PIX.PixTransferRepository;
 import com.mybank.services.Account.AccountService;
+import com.mybank.services.AdditionalFeatures.AuditLogService;
+import com.mybank.services.AdditionalFeatures.NotificationService;
 import com.mybank.services.Movements.TransactionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -25,6 +27,8 @@ public class PixTransferService {
     private final PixKeyService pixKeyService;
     private final AccountService accountService;
     private final TransactionService transactionService;
+    private final NotificationService notificationService;
+    private final AuditLogService auditLogService;
 
     /*
      * Realiza uma transferência PIX.
@@ -39,7 +43,9 @@ public class PixTransferService {
      * 6. Credita o valor na conta de destino;
      * 7. Registra a saída na conta de origem;
      * 8. Registra a entrada na conta de destino;
-     * 9. Cria o registro da transferência PIX.
+     * 9. Cria o registro da transferência PIX;
+     * 10. Cria as notificações;
+     * 11. Registra as ações no audit log.
      *
      * O @Transactional garante que todas as operações
      * sejam revertidas caso alguma etapa apresente erro.
@@ -128,7 +134,50 @@ public class PixTransferService {
         pixTransfer.setDestinationAccount(destinationAccount);
         pixTransfer.setPixKey(pixKey);
 
-        return pixTransferRepository.save(pixTransfer);
+        PixTransfer savedPixTransfer =
+                pixTransferRepository.save(pixTransfer);
+
+        /*
+         * Cria uma notificação para o usuário que enviou o PIX.
+         */
+        notificationService.create(
+                sourceAccount.getUser(),
+                "PIX transfer of " + amount + " completed successfully"
+        );
+
+        /*
+         * Cria uma notificação para o usuário que recebeu o PIX.
+         */
+        notificationService.create(
+                destinationAccount.getUser(),
+                "You received a PIX transfer of " + amount
+        );
+
+        /*
+         * Registra a transferência realizada pelo usuário
+         * de origem no histórico de auditoria.
+         */
+        auditLogService.create(
+                sourceAccount.getUser(),
+                "PIX_TRANSFER_CREATED",
+                "PIX transfer of " + amount
+                        + " sent to account "
+                        + destinationAccount.getId()
+        );
+
+        /*
+         * Registra o recebimento do PIX no histórico
+         * de auditoria do usuário de destino.
+         */
+        auditLogService.create(
+                destinationAccount.getUser(),
+                "PIX_TRANSFER_RECEIVED",
+                "PIX transfer of " + amount
+                        + " received from account "
+                        + sourceAccount.getId()
+        );
+
+        return savedPixTransfer;
     }
 
     /*
