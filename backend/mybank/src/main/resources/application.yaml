@@ -29,3 +29,8 @@ logging:
     level:
         org.springframework.security: DEBUG
         com.mybank: DEBUG
+security:
+    jwt:
+        secret: ${IZy33gDfCTF1S0CJwpXeRzUTnDqUuOrE1gYztOaWd5M=}
+        expiration: 900
+        refresh-expiration: 604800
