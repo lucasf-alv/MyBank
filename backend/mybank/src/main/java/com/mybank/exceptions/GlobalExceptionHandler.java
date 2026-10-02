@@ -711,6 +711,57 @@ public class GlobalExceptionHandler {
                 .badRequest()
                 .body(apiError);
     }
+    @ExceptionHandler(UserAlreadyExistsError.class)
+    public ResponseEntity<ApiError> handleUserAlreadyExists(
+            UserAlreadyExistsError ex,
+            HttpServletRequest request) {
+
+        ApiError apiError = new ApiError(
+                LocalDateTime.now(),
+                HttpStatus.CONFLICT.value(),
+                "Conflict",
+                ex.getMessage(),
+                request.getRequestURI()
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(apiError);
+    }
+    @ExceptionHandler(InvalidCredentialsError.class)
+    public ResponseEntity<ApiError> handleInvalidCredentials(
+            InvalidCredentialsError ex,
+            HttpServletRequest request) {
+
+        ApiError apiError = new ApiError(
+                LocalDateTime.now(),
+                HttpStatus.UNAUTHORIZED.value(),
+                "Unauthorized",
+                ex.getMessage(),
+                request.getRequestURI()
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .body(apiError);
+    }
+    @ExceptionHandler(UserBlockedError.class)
+    public ResponseEntity<ApiError> handleUserBlocked(
+            UserBlockedError ex,
+            HttpServletRequest request) {
+
+        ApiError apiError = new ApiError(
+                LocalDateTime.now(),
+                HttpStatus.FORBIDDEN.value(),
+                "Forbidden",
+                ex.getMessage(),
+                request.getRequestURI()
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
+                .body(apiError);
+    }
 
 
 }
