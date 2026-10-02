@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.mybank.dto.AuthResponse;
 import java.time.LocalDateTime;
+import com.mybank.dto.RegisterRequest;
 
 @Service
 @RequiredArgsConstructor
@@ -42,13 +43,14 @@ public class AuthService {
      * - registra a criação no audit log.
      */
     @Transactional
-    public User register(User user) {
+    public User register(
+            RegisterRequest request) {
 
         /*
          * Verifica se já existe um usuário
          * utilizando o email informado.
          */
-        if (userRepository.existsByEmail(user.getEmail())) {
+        if (userRepository.existsByEmail(request.email())) {
             throw new UserAlreadyExistsError(
                     "Email is already registered"
             );
@@ -58,22 +60,33 @@ public class AuthService {
          * Verifica se já existe um usuário
          * utilizando o CPF informado.
          */
-        if (userRepository.existsByCpf(user.getCpf())) {
+        if (userRepository.existsByCpf(request.cpf())) {
             throw new UserAlreadyExistsError(
                     "CPF is already registered"
             );
         }
 
         /*
-         * A senha nunca deve ser armazenada
-         * diretamente no banco de dados.
+         * Cria a entidade User a partir
+         * dos dados recebidos no DTO.
+         */
+        User user = new User();
+
+        user.setName(request.name());
+        user.setCpf(request.cpf());
+        user.setEmail(request.email());
+        user.setPhone(request.phone());
+        user.setBirthDate(request.birthDate());
+
+        /*
+         * A senha nunca é armazenada diretamente.
          *
          * O PasswordEncoder transforma a senha
          * em um hash antes do armazenamento.
          */
         user.setPassword(
                 passwordEncoder.encode(
-                        user.getPassword()
+                        request.password()
                 )
         );
 
@@ -84,16 +97,10 @@ public class AuthService {
                 UserStatus.ACTIVE
         );
 
-        /*
-         * Registra a data de criação.
-         */
         user.setCreatedAt(
                 LocalDateTime.now()
         );
 
-        /*
-         * Registra a data da última alteração.
-         */
         user.setUpdatedAt(
                 LocalDateTime.now()
         );
@@ -105,8 +112,7 @@ public class AuthService {
                 userRepository.save(user);
 
         /*
-         * Informa ao usuário que o cadastro
-         * foi concluído.
+         * Notifica o usuário sobre o cadastro.
          */
         notificationService.create(
                 savedUser,
@@ -114,8 +120,7 @@ public class AuthService {
         );
 
         /*
-         * Registra a criação do usuário
-         * no histórico de auditoria.
+         * Registra o cadastro no audit log.
          */
         auditLogService.create(
                 savedUser,
