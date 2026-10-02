@@ -6,7 +6,6 @@ spring:
         driver-class-name: org.postgresql.Driver
 
     jpa:
-        database-platform: org.hibernate.dialect.PostgreSQLDialect
         hibernate:
             ddl-auto: validate
         show-sql: true
@@ -29,8 +28,9 @@ logging:
     level:
         org.springframework.security: DEBUG
         com.mybank: DEBUG
+
 security:
     jwt:
-        secret: ${IZy33gDfCTF1S0CJwpXeRzUTnDqUuOrE1gYztOaWd5M=}
+        secret: IZy33gDfCTF1S0CJwpXeRzUTnDqUuOrE1gYztOaWd5M=
         expiration: 900
         refresh-expiration: 604800

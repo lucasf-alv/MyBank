@@ -658,6 +658,59 @@ public class GlobalExceptionHandler {
                 .badRequest()
                 .body(apiError);
     }
+    @ExceptionHandler(RefreshTokenNotFoundError.class)
+    public ResponseEntity<ApiError> handleRefreshTokenNotFound(
+            RefreshTokenNotFoundError ex,
+            HttpServletRequest request) {
+
+        ApiError apiError = new ApiError(
+                LocalDateTime.now(),
+                HttpStatus.NOT_FOUND.value(),
+                "Not Found",
+                ex.getMessage(),
+                request.getRequestURI()
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(apiError);
+    }
+
+    @ExceptionHandler(RefreshTokenRevokedError.class)
+    public ResponseEntity<ApiError> handleRefreshTokenRevoked(
+            RefreshTokenRevokedError ex,
+            HttpServletRequest request) {
+
+        ApiError apiError = new ApiError(
+                LocalDateTime.now(),
+                HttpStatus.BAD_REQUEST.value(),
+                "Bad Request",
+                ex.getMessage(),
+                request.getRequestURI()
+        );
+
+        return ResponseEntity
+                .badRequest()
+                .body(apiError);
+    }
+
+    @ExceptionHandler(RefreshTokenExpiredError.class)
+    public ResponseEntity<ApiError> handleRefreshTokenExpired(
+            RefreshTokenExpiredError ex,
+            HttpServletRequest request) {
+
+        ApiError apiError = new ApiError(
+                LocalDateTime.now(),
+                HttpStatus.BAD_REQUEST.value(),
+                "Bad Request",
+                ex.getMessage(),
+                request.getRequestURI()
+        );
+
+        return ResponseEntity
+                .badRequest()
+                .body(apiError);
+    }
 
 
 }

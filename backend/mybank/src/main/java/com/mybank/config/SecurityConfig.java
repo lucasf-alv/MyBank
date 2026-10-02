@@ -79,7 +79,7 @@ public class SecurityConfig {
         http.httpBasic(basic -> basic.disable());
 
         /*
-         * API stateless utilizando Bearer Token.
+         * A API utiliza autenticação stateless.
          */
         http.csrf(csrf -> csrf.disable());
 
@@ -99,8 +99,8 @@ public class SecurityConfig {
     /*
      * Cria a chave utilizada pelo JWT.
      *
-     * A chave é armazenada como Base64
-     * na variável de ambiente.
+     * A chave está configurada no application.yml
+     * em security.jwt.secret.
      */
     @Bean
     public SecretKey jwtSecretKey() {
@@ -116,7 +116,7 @@ public class SecurityConfig {
 
     /*
      * Cria o componente responsável por assinar
-     * os Access Tokens.
+     * os Access Tokens utilizando HS256.
      */
     @Bean
     public JwtEncoder jwtEncoder(
@@ -138,6 +138,7 @@ public class SecurityConfig {
 
         return NimbusJwtDecoder
                 .withSecretKey(jwtSecretKey)
+                .macAlgorithm(MacAlgorithm.HS256)
                 .build();
     }
 }
