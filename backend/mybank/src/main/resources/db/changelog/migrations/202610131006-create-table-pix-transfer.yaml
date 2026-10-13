@@ -1,0 +1,97 @@
+databaseChangeLog:
+  - changeSet:
+      id: 007-create-table-pix-transfer
+      author: lucas
+      changes:
+        - createTable:
+            tableName: pix_transfer
+            columns:
+              - column:
+                  name: id
+                  type: UUID
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_pix_transfer
+                    nullable: false
+
+              - column:
+                  name: amount
+                  type: NUMERIC(38,2)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: description
+                  type: VARCHAR(255)
+
+              - column:
+                  name: status
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: created_at
+                  type: TIMESTAMP WITHOUT TIME ZONE
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: source_account_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: destination_account_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: pix_key_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+
+        - addForeignKeyConstraint:
+            baseTableName: pix_transfer
+            baseColumnNames: source_account_id
+            constraintName: fk_pix_transfer_source_account
+            referencedTableName: account
+            referencedColumnNames: id
+
+        - addForeignKeyConstraint:
+            baseTableName: pix_transfer
+            baseColumnNames: destination_account_id
+            constraintName: fk_pix_transfer_destination_account
+            referencedTableName: account
+            referencedColumnNames: id
+
+        - addForeignKeyConstraint:
+            baseTableName: pix_transfer
+            baseColumnNames: pix_key_id
+            constraintName: fk_pix_transfer_key
+            referencedTableName: pix_key
+            referencedColumnNames: id
+
+        - createIndex:
+            tableName: pix_transfer
+            indexName: idx_pix_transfer_source_account
+            columns:
+              - column:
+                  name: source_account_id
+
+        - createIndex:
+            tableName: pix_transfer
+            indexName: idx_pix_transfer_destination_account
+            columns:
+              - column:
+                  name: destination_account_id
+
+        - createIndex:
+            tableName: pix_transfer
+            indexName: idx_pix_transfer_key
+            columns:
+              - column:
+                  name: pix_key_id

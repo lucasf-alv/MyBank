@@ -29,7 +29,8 @@ public class Notification {
     @Column(name = "message", nullable = false)
     private String message;
 
-    @Column(name = "read", nullable = false)
+
+    @Column(name = "is_read", nullable = false)
     private boolean read;
 
     @Column(name = "created_at", nullable = false)

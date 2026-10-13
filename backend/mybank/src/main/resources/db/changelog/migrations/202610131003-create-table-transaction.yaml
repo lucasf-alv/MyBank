@@ -1,0 +1,76 @@
+databaseChangeLog:
+  - changeSet:
+      id: 004-create-table-transaction
+      author: lucas
+      changes:
+        - createTable:
+            tableName: transaction
+            columns:
+              - column:
+                  name: id
+                  type: UUID
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_transaction
+                    nullable: false
+
+              - column:
+                  name: type
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: amount
+                  type: NUMERIC(38,2)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: description
+                  type: VARCHAR(255)
+
+              - column:
+                  name: balance_after
+                  type: NUMERIC(38,2)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: status
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: created_at
+                  type: TIMESTAMP WITHOUT TIME ZONE
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: account_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+
+        - addForeignKeyConstraint:
+            baseTableName: transaction
+            baseColumnNames: account_id
+            constraintName: fk_transaction_account
+            referencedTableName: account
+            referencedColumnNames: id
+
+        - createIndex:
+            tableName: transaction
+            indexName: idx_transaction_account_id
+            columns:
+              - column:
+                  name: account_id
+
+        - createIndex:
+            tableName: transaction
+            indexName: idx_transaction_created_at
+            columns:
+              - column:
+                  name: created_at

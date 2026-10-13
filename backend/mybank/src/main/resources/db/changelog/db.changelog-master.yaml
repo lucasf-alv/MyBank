@@ -1,4 +1,56 @@
 databaseChangeLog:
+  - objectQuotingStrategy: QUOTE_ONLY_RESERVED_WORDS
+
   - include:
-      file: migrations/202607201106-create-table-users.yaml
+      file: migrations/202610131000-create-table-user.yaml
+      relativeToChangelogFile: true
+
+  - include:
+      file: migrations/202610131001-create-table-refresh-token.yaml
+      relativeToChangelogFile: true
+
+  - include:
+      file: migrations/202610131002-create-table-account.yaml
+      relativeToChangelogFile: true
+
+  - include:
+      file: migrations/202610131003-create-table-transaction.yaml
+      relativeToChangelogFile: true
+
+  - include:
+      file: migrations/202610131004-create-table-transfer.yaml
+      relativeToChangelogFile: true
+
+  - include:
+      file: migrations/202610131005-create-table-pix-key.yaml
+      relativeToChangelogFile: true
+
+  - include:
+      file: migrations/202610131006-create-table-pix-transfer.yaml
+      relativeToChangelogFile: true
+
+  - include:
+      file: migrations/202610131007-create-table-card.yaml
+      relativeToChangelogFile: true
+
+  - include:
+      file: migrations/202610131008-create-table-credit-card-invoice.yaml
+      relativeToChangelogFile: true
+
+  - include:
+      file: migrations/202610131009-create-table-card-transaction.yaml
+      relativeToChangelogFile: true
+
+  - include:
+      file: migrations/202610131010-create-table-notification.yaml
+      relativeToChangelogFile: true
+
+  - include:
+      file: migrations/202610131011-create-table-audit-log.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: migrations/202610131012-add-ip-address-to-audit-log.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: migrations/202610131013-add-title-to-notification.yaml
       relativeToChangelogFile: true

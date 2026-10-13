@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - changeSet:
+      id: 013-add-ip-address-to-audit-log
+      author: lucas
+      changes:
+        - addColumn:
+            tableName: audit_log
+            columns:
+              - column:
+                  name: ip_address
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: true

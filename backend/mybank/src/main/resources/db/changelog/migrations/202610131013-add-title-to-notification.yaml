@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - changeSet:
+      id: 014-add-title-to-notification
+      author: lucas
+      changes:
+        - addColumn:
+            tableName: notification
+            columns:
+              - column:
+                  name: title
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: true

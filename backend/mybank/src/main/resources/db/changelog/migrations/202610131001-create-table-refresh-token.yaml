@@ -1,0 +1,60 @@
+databaseChangeLog:
+  - changeSet:
+      id: 002-create-table-refresh-token
+      author: lucas
+      changes:
+        - createTable:
+            tableName: refresh_token
+            columns:
+              - column:
+                  name: id
+                  type: UUID
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_refresh_token
+                    nullable: false
+
+              - column:
+                  name: token
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+                    unique: true
+
+              - column:
+                  name: expires_at
+                  type: TIMESTAMP WITHOUT TIME ZONE
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: revoked
+                  type: BOOLEAN
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: created_at
+                  type: TIMESTAMP WITHOUT TIME ZONE
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: user_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+
+        - addForeignKeyConstraint:
+            baseTableName: refresh_token
+            baseColumnNames: user_id
+            constraintName: fk_refresh_token_user
+            referencedTableName: user
+            referencedColumnNames: id
+
+        - createIndex:
+            tableName: refresh_token
+            indexName: idx_refresh_token_user_id
+            columns:
+              - column:
+                  name: user_id
