@@ -39,8 +39,8 @@ public class SecurityConfig {
         http.authorizeHttpRequests(authorize -> authorize
 
                 /*
-                 * Endpoints públicos utilizados
-                 * durante a autenticação.
+                 * Endpoints públicos utilizados durante
+                 * a autenticação.
                  */
                 .requestMatchers(
                         "/auth/register",
@@ -49,8 +49,19 @@ public class SecurityConfig {
                 ).permitAll()
 
                 /*
-                 * Qualquer outro endpoint exige
-                 * um JWT válido.
+                 * Permite carregar o Swagger UI
+                 * e consultar a documentação OpenAPI.
+                 */
+                .requestMatchers(
+                        "/swagger-ui.html",
+                        "/swagger-ui/**",
+                        "/v3/api-docs",
+                        "/v3/api-docs/**",
+                        "/v3/api-docs.yaml"
+                ).permitAll()
+
+                /*
+                 * Os demais endpoints exigem autenticação.
                  */
                 .anyRequest().authenticated()
         );
