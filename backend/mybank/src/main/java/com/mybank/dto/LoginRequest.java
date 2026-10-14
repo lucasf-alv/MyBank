@@ -11,5 +11,6 @@ public record LoginRequest(
 
         @NotBlank
         String password
+
 ) {
 }
