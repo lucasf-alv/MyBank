@@ -11,6 +11,7 @@ import com.mybank.repositories.Card.CardTransactionRepository;
 import com.mybank.services.Account.AccountService;
 import com.mybank.services.AdditionalFeatures.AuditLogService;
 import com.mybank.services.AdditionalFeatures.NotificationService;
+import com.mybank.services.Movements.TransactionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,31 +31,29 @@ public class CardTransactionService {
     private final CreditCardInvoiceService invoiceService;
     private final NotificationService notificationService;
     private final AuditLogService auditLogService;
+    private final TransactionService transactionService;
 
     /*
      * Cria uma nova transação realizada através de um cartão.
      *
-     * O comportamento depende do tipo do cartão:
-     *
      * DÉBITO:
-     * - valida o cartão;
-     * - verifica o valor;
-     * - debita o valor da conta;
-     * - registra a transação;
+     * - valida o cartão e o valor;
+     * - debita a conta;
+     * - registra a movimentação no histórico da conta;
+     * - registra a compra do cartão;
      * - cria a notificação;
-     * - registra a ação no audit log.
+     * - registra a ação na auditoria.
      *
      * CRÉDITO:
-     * - valida o cartão;
-     * - verifica o valor;
+     * - valida o cartão e o valor;
      * - encontra a fatura aberta;
      * - adiciona a compra à fatura;
-     * - registra a transação vinculada à fatura;
+     * - registra a compra vinculada à fatura;
      * - cria a notificação;
-     * - registra a ação no audit log.
+     * - registra a ação na auditoria.
      *
-     * O @Transactional garante que todas as operações
-     * sejam revertidas caso alguma etapa apresente erro.
+     * Todas as operações participam da mesma transação,
+     * permitindo o rollback em caso de falha.
      */
     @Transactional
     public CardTransaction create(
@@ -70,16 +69,11 @@ public class CardTransactionService {
 
         /*
          * Verifica se o cartão pode ser utilizado.
-         *
-         * O CardService verifica situações como:
-         * - cartão bloqueado;
-         * - cartão cancelado;
-         * - cartão expirado.
          */
         cardService.validateCard(card);
 
         /*
-         * Cria a entidade que representará a compra.
+         * Cria a entidade que representa a compra.
          */
         CardTransaction transaction = new CardTransaction();
 
@@ -90,23 +84,16 @@ public class CardTransactionService {
         transaction.setCard(card);
 
         /*
-         * Se o cartão for de débito,
-         * o valor é retirado imediatamente
-         * da conta associada ao cartão.
+         * Processa a compra conforme o tipo do cartão.
          */
         if (card.getType() == CardType.DEBIT) {
 
             processDebitPurchase(
                     card,
-                    amount
+                    amount,
+                    description
             );
 
-            /*
-             * Se o cartão for de crédito,
-             * o valor não é retirado da conta imediatamente.
-             *
-             * A compra será adicionada à fatura aberta.
-             */
         } else if (card.getType() == CardType.CREDIT) {
 
             processCreditPurchase(
@@ -116,8 +103,7 @@ public class CardTransactionService {
         }
 
         /*
-         * Depois de processar a compra,
-         * salva a CardTransaction no banco.
+         * Salva a compra no histórico do cartão.
          */
         CardTransaction savedTransaction =
                 cardTransactionRepository.save(transaction);
@@ -128,8 +114,7 @@ public class CardTransactionService {
         Account account = card.getAccount();
 
         /*
-         * Cria uma notificação para o usuário
-         * informando sobre a compra realizada.
+         * Notifica o usuário sobre a compra.
          */
         notificationService.create(
                 account.getUser(),
@@ -138,7 +123,7 @@ public class CardTransactionService {
         );
 
         /*
-         * Registra a compra no histórico de auditoria.
+         * Registra a ação na auditoria.
          */
         auditLogService.create(
                 account.getUser(),
@@ -152,9 +137,6 @@ public class CardTransactionService {
 
     /*
      * Busca uma transação de cartão pelo ID.
-     *
-     * Caso a transação não exista,
-     * lança CardTransactionNotFoundError.
      */
     public CardTransaction findById(UUID id) {
 
@@ -167,8 +149,7 @@ public class CardTransactionService {
     }
 
     /*
-     * Busca todas as transações realizadas
-     * através de um determinado cartão.
+     * Busca as transações de um cartão.
      */
     public List<CardTransaction> findByCard(UUID cardId) {
 
@@ -176,11 +157,7 @@ public class CardTransactionService {
     }
 
     /*
-     * Busca todas as transações que pertencem
-     * a uma determinada fatura.
-     *
-     * Isso permite consultar todas as compras
-     * que compõem o valor da fatura.
+     * Busca as transações vinculadas a uma fatura.
      */
     public List<CardTransaction> findByInvoice(UUID invoiceId) {
 
@@ -188,15 +165,15 @@ public class CardTransactionService {
     }
 
     /*
-     * Processa uma compra realizada no débito.
+     * Processa uma compra no débito.
      *
-     * O cartão está associado a uma conta.
-     * O AccountService é responsável por alterar
-     * o saldo dessa conta.
+     * Além de debitar a conta, registra a movimentação
+     * no histórico financeiro por meio do TransactionService.
      */
     private void processDebitPurchase(
             Card card,
-            BigDecimal amount) {
+            BigDecimal amount,
+            String description) {
 
         /*
          * Obtém a conta associada ao cartão.
@@ -204,35 +181,41 @@ public class CardTransactionService {
         Account account = card.getAccount();
 
         /*
-         * Retira o valor da compra do saldo da conta.
+         * Debita o valor da compra.
          *
-         * O AccountService também verifica:
-         * - se a conta está bloqueada;
-         * - se existe saldo suficiente;
-         * - se o valor é válido.
+         * O AccountService mantém as validações existentes
+         * de saldo e status da conta.
          */
         accountService.debit(
                 account,
                 amount
         );
+
+        /*
+         * Registra o débito no histórico da conta.
+         *
+         * Como o saldo já foi atualizado, a movimentação
+         * poderá registrar o saldo posterior à compra.
+         */
+        transactionService.recordDebit(
+                account,
+                amount,
+                description
+        );
     }
 
     /*
-     * Processa uma compra realizada no crédito.
+     * Processa uma compra no crédito.
      *
-     * Diferentemente do débito, o saldo da conta
-     * não é alterado neste momento.
-     *
-     * A compra é adicionada à fatura aberta
-     * do cartão.
+     * O saldo da conta não é debitado neste momento.
+     * A compra é adicionada à fatura aberta.
      */
     private void processCreditPurchase(
             Card card,
             CardTransaction transaction) {
 
         /*
-         * Busca a fatura que está atualmente aberta
-         * para receber novas compras.
+         * Busca a fatura aberta do cartão.
          */
         CreditCardInvoice invoice =
                 invoiceService.findOpenInvoice(
@@ -240,12 +223,12 @@ public class CardTransactionService {
                 );
 
         /*
-         * Vincula a compra à fatura encontrada.
+         * Associa a compra à fatura.
          */
         transaction.setInvoice(invoice);
 
         /*
-         * Adiciona o valor da compra ao total da fatura.
+         * Atualiza o total da fatura.
          */
         invoiceService.addTransaction(
                 invoice,
@@ -256,10 +239,7 @@ public class CardTransactionService {
     /*
      * Valida o valor da compra.
      *
-     * O valor não pode:
-     * - ser null;
-     * - ser igual a zero;
-     * - ser negativo.
+     * O valor deve ser maior que zero.
      */
     private void validateAmount(BigDecimal amount) {
 
