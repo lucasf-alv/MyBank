@@ -16,6 +16,7 @@ import com.mybank.services.AdditionalFeatures.AuditLogService;
 import com.mybank.services.AdditionalFeatures.NotificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -29,6 +30,7 @@ public class CardService {
     private final CardRepository cardRepository;
     private final NotificationService notificationService;
     private final AuditLogService auditLogService;
+    private final CreditCardInvoiceService invoiceService;
 
     /*
      * Cria um novo cartão associado a uma conta.
@@ -36,6 +38,7 @@ public class CardService {
      * O cartão começa como ACTIVE e recebe uma data de
      * expiração de cinco anos a partir da data de criação.
      */
+    @Transactional
     public Card create(
             Account account,
             String holderName,
@@ -69,7 +72,16 @@ public class CardService {
         // Associa o cartão à conta.
         card.setAccount(account);
 
+
         Card savedCard = cardRepository.save(card);
+
+        /*
+         * Cartões de crédito precisam de uma fatura inicial
+         * para que as primeiras compras possam ser registradas.
+         */
+        if (type == CardType.CREDIT) {
+            invoiceService.create(savedCard);
+        }
 
         /*
          * Notifica o usuário sobre a criação do cartão.

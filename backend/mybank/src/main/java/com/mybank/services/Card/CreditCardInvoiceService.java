@@ -250,6 +250,12 @@ public class CreditCardInvoiceService {
             );
         }
 
+        if (invoice.getStatus() != InvoiceStatus.CLOSED) {
+            throw new InvoiceNotClosedError(
+                    "Only closed invoices can become overdue"
+            );
+        }
+
         /*
          * Altera o status da fatura para OVERDUE.
          */
