@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public interface AuditLogRepository
@@ -17,5 +18,11 @@ public interface AuditLogRepository
     List<AuditLog> findByCreatedAtBetween(
             LocalDateTime start,
             LocalDateTime end
+    );
+    List<AuditLog> findByUser_IdOrderByCreatedAtDesc(UUID userId);
+
+    Optional<AuditLog> findByIdAndUser_Id(
+            UUID auditLogId,
+            UUID userId
     );
 }

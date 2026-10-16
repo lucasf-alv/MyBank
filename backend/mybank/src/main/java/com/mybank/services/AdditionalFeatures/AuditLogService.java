@@ -12,6 +12,10 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
+import org.springframework.http.HttpStatus;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
+
 
 @Service
 @RequiredArgsConstructor
@@ -147,5 +151,32 @@ public class AuditLogService {
                     "Audit log description cannot be null or empty"
             );
         }
+    }
+    /*
+     * Lista os registros de auditoria do usuário,
+     * começando pelos mais recentes.
+     */
+    @Transactional(readOnly = true)
+    public List<AuditLog> findByUserId(UUID userId) {
+
+        return auditLogRepository
+                .findByUser_IdOrderByCreatedAtDesc(userId);
+    }
+
+    /*
+     * Consulta um registro específico, garantindo
+     * que ele pertence ao usuário autenticado.
+     */
+    @Transactional(readOnly = true)
+    public AuditLog findByIdAndUserId(
+            UUID auditLogId,
+            UUID userId) {
+
+        return auditLogRepository
+                .findByIdAndUser_Id(auditLogId, userId)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Audit log not found"
+                ));
     }
 }

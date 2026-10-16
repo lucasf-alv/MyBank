@@ -12,7 +12,12 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
+import org.springframework.http.HttpStatus;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
+import java.util.List;
+import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class NotificationService {
@@ -85,26 +90,6 @@ public class NotificationService {
         notificationRepository.save(notification);
     }
 
-    /*
-     * Marca todas as notificações de um usuário como lidas.
-     *
-     * As notificações que já estiverem lidas permanecem
-     * sem alteração.
-     */
-    public void markAllAsRead(UUID userId) {
-
-        List<Notification> notifications =
-                notificationRepository.findByUserId(userId);
-
-        for (Notification notification : notifications) {
-
-            if (!notification.isRead()) {
-                notification.setRead(true);
-            }
-        }
-
-        notificationRepository.saveAll(notifications);
-    }
 
     /*
      * Verifica se uma notificação está lida.
@@ -136,5 +121,51 @@ public class NotificationService {
                     "Notification message cannot be null or empty"
             );
         }
+    }
+    @Transactional(readOnly = true)
+    public List<Notification> findByUserId(UUID userId) {
+
+        return notificationRepository
+                .findByUser_IdOrderByCreatedAtDesc(userId);
+    }
+
+    @Transactional(readOnly = true)
+    public List<Notification> findUnreadByUserId(UUID userId) {
+
+        return notificationRepository
+                .findByUser_IdAndReadFalseOrderByCreatedAtDesc(userId);
+    }
+
+    @Transactional
+    public Notification markAsRead(
+            UUID notificationId,
+            UUID userId) {
+
+        Notification notification = notificationRepository
+                .findByIdAndUser_Id(notificationId, userId)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Notification not found"
+                ));
+
+        notification.setRead(true);
+
+        return notificationRepository.save(notification);
+    }
+
+    @Transactional
+    public void markAllAsRead(UUID userId) {
+
+        List<Notification> notifications =
+                notificationRepository
+                        .findByUser_IdAndReadFalseOrderByCreatedAtDesc(
+                                userId
+                        );
+
+        notifications.forEach(
+                notification -> notification.setRead(true)
+        );
+
+        notificationRepository.saveAll(notifications);
     }
 }
