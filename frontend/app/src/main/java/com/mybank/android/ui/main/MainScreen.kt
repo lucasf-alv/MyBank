@@ -221,8 +221,8 @@ private fun TransactionItem(
                 text = amount,
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
-                color = if (isIncome) {
-                    MaterialTheme.colorScheme.primary
+               color = if (isIncome) {
+                    MaterialTheme.colorScheme.secondary
                 } else {
                     MaterialTheme.colorScheme.error
                 }
